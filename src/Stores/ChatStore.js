@@ -1,55 +1,74 @@
-import {observable, computed, action} from "mobx";
+import {observable, computed, action, useStrict} from "mobx";
 import ChatClient from './ChatAxiosClient';
 import _ from 'lodash';
 import moment from 'moment';
 
+useStrict();
 const chatClient = new ChatClient();
 
 class ChatStore {
-		constructor(params) {
-			console.log("store started", params);	
+		constructor(params) 
+		{
+			console.log("store started", params, this.particpantId);	
 			this.params = params;	
 		}
 
-		config = {};
-		eventsQueue = [];
+		@observable chatId = "";
+		@observable particpantId = "";
+		@observable pollWait = 3000; //default 3s;
 		@observable messages = [];
+		@observable participants = [];
 		@observable pollingActive = false;
-		@observable participants = {};
 
 		//@computed get pollingActive() {return this.tick && this.tick>0}
 
 		@action connect = () => {	
 			if (!this.params) return;
+			console.log("connecting store to chatapi...");
 			chatClient.start(this.params)
 				.then(this.connectOk);
 		}
-		connectOk = (startResult) => {
-			let chat = startResult.data.chat;
-			console.log("ok - started chat:", chat);
-			this.config = chat;
-			this.eventsQueue = chat.events || [];
+
+		connectOk = (connectResponse) => {
+			let chat = connectResponse.data.chat;
+			console.log("started chat: ", chat.status.type);
+			if (chat.status.type==="success") {
+				console.log("updating chat properties: ", chat.status.type);
+				this.chatId = chat.chatID;
+				this.particpantId = chat.participantID;
+				this.pollWait = chat.pollWaitSuggestion;
+				this.parseResponse("start", chat)
+			} else {
+				console.warn("start chat failed: ", chat.status);
+				//what to do if failed start?		
+			}
 		}
 
 		@action startPolling = () => {	
-			if (!this.config) return;
-			console.log("start polling:",this.config, this.tick);
-			if (!this.tick)  this.tick = window.setInterval(this.poll, this.config.pollWaitSuggestion);	
-			this.pollingActive = true;	
+			console.log("start polling:",this.pollWait, this.tick);
+			this.pollingActive = true;
+			this.tick = window.setInterval(this.poll, this.pollWait);	
 		}
 
 		@action stopPolling = () => {	
 			console.log("stopped polling");
-			//clearInterval(this.tick);
-			this.pollingActive = false;	
-			console.log("polling", this.pollingActive);
+			this.pollingActive = false;
+			window.clearInterval(this.tick);
 		}
 
-		poll = () => {
+		@action poll = () => {
+			//console.log("store polling", this.pollingActive, this.tick, this.messagesCount);
 			if (!this.pollingActive) return;
-			console.log("store polling", this.pollingActive);
-			chatClient.poll(this.config.participantID)
-				.then((response) => this.parseEvents(response.data.chat.events));
+			console.log(`polling ${this.particpantId}...`);
+			chatClient.poll(this.participantId)
+				.then((response) => this.parseResponse("poll", response.data.chat));
+		}
+
+		@action parseResponse = (action, chat) => {
+			console.log(`parsing "${action}" response: ${chat.events.length} events `);
+			if (chat.events && chat.events.length > 0) {
+				this.parseEvents(chat.events);
+			}
 		}
 
         updateParticipants = (event) => {
@@ -66,6 +85,7 @@ class ChatStore {
         }
 
 		parseEvents = (events) => {
+				console.log(`parsing ${events.length} events`);
 				//this.events = _.concat(this.events, events);
 				_.map(events, (event) => {
 					if (event.displayName && event.participantType)	
@@ -89,39 +109,31 @@ class ChatStore {
 							default:
 								break;
 						}
-    		});
-        	//console.table(this.participants.slice());           
+    		});       
 		}
 		
 		@action sendMessage(message) {
-				this.pollingActive = true;
-				message.timeStamp = new moment();
-				//this.messages.push(message);
-				chatClient.send(this.config.participantID, message.message)
-				.then((response) => this.parseEvents(response.data.chat.events));
+			message.timeStamp = new moment();
+			chatClient.send(this.particpantId, message.message)
+			.then((response) => this.parseResponse("send", response.data.chat));
 		}
 
 		@action disconnect() {	
-				if (this.tick > 0) clearInterval(this.tick);			
-				chatClient.disconnect(this.config.participantID)
-				.then((response) => this.parseEvents(response.data.chat.events));
+			if (this.tick) clearInterval(this.tick);			
+			chatClient.disconnect(this.participantId)
+			.then((response) => this.parseResponse("exit", response.data.chat));
 		}
 
 		@computed get messagesCount() {
-				return this.messages.length;
-		}
-
-		@computed get sessionstate() {
-				return this.config  && this.config.participantID ? "started" : "offline";
+			return this.messages.length;
 		}
 
 		@computed get connected() {
-				return this.config && !!this.config.participantID;
+			return  !!(this.chatId  && this.participantId )
 		}
 
 		@computed get participantsList() {
-                
-				return this.participants.map((p) => {return p.name});
+    		return this.participants.map((p) => {return p.name});
 		}
 }
 

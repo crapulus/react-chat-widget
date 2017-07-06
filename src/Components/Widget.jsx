@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {observer, inject} from 'mobx-react';
+import {inject} from 'mobx-react';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
-
 import {FloatingActionButton} from 'material-ui';
 import Chat from './Chat.jsx';
 import ChatIcon from 'material-ui/svg-icons/communication/chat';
@@ -12,7 +11,6 @@ import style from './Widget.style.js';
 const muiTheme = getMuiTheme(style.Theme);
 
 @inject("chatStore")
-@observer
 class Widget extends Component {
     constructor(props) {
         super(props);
@@ -21,7 +19,7 @@ class Widget extends Component {
         };
     }
 
-    tooggle = () => {
+    toggle = () => {
         if (!this.state.open) this.props.chatStore.startPolling();
         this.setState((prevState) => {
             return {
@@ -48,7 +46,7 @@ class Widget extends Component {
                 <div>
                     <FloatingActionButton
                         style={style.FloatingButton}
-                        onTouchTap={this.tooggle}
+                        onTouchTap={this.toggle}
                         zDepth={2}>
                         {this.state.open ? <CloseIcon/> : <ChatIcon/>}
                     </FloatingActionButton>

@@ -1,32 +1,57 @@
 import React, { Component } from 'react';
+import {observer} from 'mobx-react';
 import {Card, CardHeader, CardText, CardActions} from 'material-ui/Card';
 import Avatar from 'material-ui/Avatar';
 import TextField from 'material-ui/TextField';
 import SendIcon from 'material-ui/svg-icons/content/send';
-
 import Messages from './Messages.jsx';
 
+@observer
 export default class Chat extends Component {
-	state = { active:false, sendDirect: true, messages: []};
-	store = this.props.chatStore;
+	constructor(props) {
+		super(props)
+		this.state = { connected: false, sendOnEnter: true};
+		this.store = props.chatStore;
+	}
 
 	activate = (open) => {
-		if (!this.state.active && open) 
-		{
-			this.store.connect();	
-			this.setState({
-				active:this.store.connected
-			});
+		console.log("activating IF open ,state", open, this.state.connected);
+		if (!this.state.connected && open) 
+		{			
+			this.store.connect();
 		}
 	}
-	cnt = () => {return this.store.messages.length}
+
+	cnt = () => {return this.store.messages.length || 0}
 
 	componentWillUpdate = (nextProps, nextState) => {
-		if (!this.state.open && nextState.open) this.activate(nextProps.open)
+		//console.log("willupdate: open, active, next", this.props.open, this.state.connected, nextProps.open, nextState.connected);
+		
+		if (nextProps.chatStore.connected) {
+			console.log("connected, chatid = " + this.store.chatId);	
+			nextState = 
+				{
+					connected:true
+				};
+		}
+		//active and closing - need to stop polling
+		if (!nextProps.open) {
+			this.store.stopPolling();
+		}
+		//active and opening - restart polling
+		if (!this.props.open && this.state.connected && nextProps.open) {
+			this.store.startPolling();
+		}
+		//inactive and opening - connect + start polling
+		if (!this.props.open && !this.state.connected && nextProps.open) {
+			this.activate(true);
+			this.store.startPolling();
+		}
 	}
 
 	componentDidMount = () => {
-		this.activate();
+		//console.log("didmount: props, state", this.props, this.state);
+		this.activate(this.props.open);
 	}
 
 	handleSubmit = (e) => {
@@ -46,12 +71,6 @@ export default class Chat extends Component {
 		messageinput.value = "";	
 	}
 	
-	// handleChange = (e, value) => {
-	// 	////todo: set typing to true
-	// 	//e.preventDefault();
-	// 	//console.log(value, e.target, e.target.value);
-	// }
-
 	scrollWindow() {
 		let messageList = document.getElementById("messageslist");
 		//console.log("scrolling", messageList.scrollHeight, messageList.scrollTop, messageList.scrollTopMax);
@@ -60,11 +79,12 @@ export default class Chat extends Component {
 	}
 
 	componentDidUpdate = (prevProps, prevState) => {
-			this.scrollWindow();
+		//console.log("didupdate: props, state", prevProps, prevState);
+		this.scrollWindow();
 	}
 
-	
 	componentWillUnmount = () => {
+		//console.log("willunmount: props, state", this.props,this.state);
 		this.store.disconnect();
 	}
 	
@@ -88,7 +108,7 @@ export default class Chat extends Component {
 					hintText="Your Message..."
 					onChange={this.onChange}
 					fullWidth={true}
-					multiLine={!this.state.sendDirect}>
+					multiLine={!this.state.sendOnEnter}>
 				</TextField>	
 				</form>		
 			</CardActions>

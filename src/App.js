@@ -5,6 +5,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import Widget from './Components/Widget.jsx';
 import ChatStore from './Stores/ChatStore';
 
+
 injectTapEventPlugin();
 
 class App extends Component {
