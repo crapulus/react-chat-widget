@@ -1,23 +1,30 @@
+import {red700} from 'material-ui/styles/colors';
 const style = {
+    Theme: {
+        palette: {
+            primary1Color: red700
+        },
+        appBar: {
+            height: 40
+        }
+    },
+    primaryColor: red700,
     FloatingButton: {
         position: "absolute",
         bottom: 24,
         right: 24
     },
 
-    Card: {
+    Chat: {
         display: 'none',
         position: "absolute",
-        bottom: 96,
+        bottom: 112,
         right: 24,
-        width: "75vw",
-        maxHeight: "90vh",
+        width: "33vw",
+        minWidth: "360px",
+        maxWidth: "720px",
+        maxHeight: "75vh",
         borderRadius: "1em"
-    },
-
-    Messages: {
-        maxHeight: "60vh",
-        overflow: "auto"
     }
 }
 

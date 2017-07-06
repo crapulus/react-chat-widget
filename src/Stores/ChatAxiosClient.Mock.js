@@ -4,14 +4,14 @@ import MockAdapter from 'axios-mock-adapter';
 
 // MOCK REST API //
 axios.rootUri =  "http://chatapi.n-allo.dev/api/";
-const mock = new MockAdapter(axios, {delayResponse: 200});
-const commonResponse = {chat: { pollWaitSuggestion: 2000, cfgVer: 1, status:{tyoe:"success"}}}
+const mock = new MockAdapter(axios, {delayResponse: 500});
+const commonResponse = {chat: { pollWaitSuggestion: 3000, cfgVer: 1, status:{type:"success"}}}
 //start
 mock
     .onPost(/chat\/start/)
     .reply(200, {
         chat: {
-            pollWaitSuggestion: 2000,
+            pollWaitSuggestion: 3000,
             cfgVer: 1,
             participantID: "94e8c3b0-aeee-40e1-ba5a-a593c8047fc5",
             dateFormat: "M/d/yyyy",

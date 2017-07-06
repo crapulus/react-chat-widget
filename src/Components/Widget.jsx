@@ -1,11 +1,15 @@
 import React, {Component} from 'react';
 import {observer, inject} from 'mobx-react';
-import {MuiThemeProvider} from 'material-ui/styles';
+import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
+
 import {FloatingActionButton} from 'material-ui';
 import Chat from './Chat.jsx';
-//import FlatButton from 'material-ui/FlatButton';
 import ChatIcon from 'material-ui/svg-icons/communication/chat';
+import CloseIcon from 'material-ui/svg-icons/navigation/expand-more';
+
 import style from './Widget.style.js';
+
+const muiTheme = getMuiTheme(style.Theme);
 
 @inject("chatStore")
 @observer
@@ -32,7 +36,7 @@ class Widget extends Component {
 
     getStyle = () => {
         let s = style;
-        s.Card.display = this.state.open
+        s.Chat.display = this.state.open
             ? "inline"
             : "none";
         return s;
@@ -40,15 +44,15 @@ class Widget extends Component {
 
     render() {
         return (
-            <MuiThemeProvider>
+            <MuiThemeProvider muiTheme={muiTheme}>
                 <div>
                     <FloatingActionButton
                         style={style.FloatingButton}
                         onTouchTap={this.tooggle}
                         zDepth={2}>
-                        <ChatIcon/>
+                        {this.state.open ? <CloseIcon/> : <ChatIcon/>}
                     </FloatingActionButton>
-                    <Chat config={this.props.config} chatStore={this.props.chatStore} style={this.getStyle()}/>                    
+                    <Chat open={this.state.open} config={this.props.config} chatStore={this.props.chatStore} style={this.getStyle()}/>                    
                 </div>
             </MuiThemeProvider>
         );

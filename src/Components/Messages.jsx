@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Message from './Message.jsx';
 import {List} from 'material-ui/List';
+import style from './Messages.style.js';
 
 export default class Messages extends Component{
-	
+
 	render() {
 		
 		let messages = this.props.messages.map(function(message, i) {
@@ -11,7 +12,7 @@ export default class Messages extends Component{
 		});
 		
 		return (
-			<List style={this.props.style}>
+			<List id="messageslist" style={style.MessageList}>
 				{messages}
 			</List>
 		);

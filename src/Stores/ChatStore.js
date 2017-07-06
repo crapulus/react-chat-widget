@@ -15,7 +15,7 @@ class ChatStore {
 		eventsQueue = [];
 		@observable messages = [];
 		@observable pollingActive = false;
-		@observable participants = [];
+		@observable participants = {};
 
 		//@computed get pollingActive() {return this.tick && this.tick>0}
 
@@ -33,8 +33,8 @@ class ChatStore {
 
 		@action startPolling = () => {	
 			if (!this.config) return;
-			console.log("start polling:",this.config);
-			if (!this.tick)  this.tick = setInterval(this.poll, this.config.pollWaitSuggestion * 2);	
+			console.log("start polling:",this.config, this.tick);
+			if (!this.tick)  this.tick = window.setInterval(this.poll, this.config.pollWaitSuggestion);	
 			this.pollingActive = true;	
 		}
 
@@ -47,7 +47,7 @@ class ChatStore {
 
 		poll = () => {
 			if (!this.pollingActive) return;
-			//console.log("polling", this.pollingActive);
+			console.log("store polling", this.pollingActive);
 			chatClient.poll(this.config.participantID)
 				.then((response) => this.parseEvents(response.data.chat.events));
 		}
@@ -116,7 +116,7 @@ class ChatStore {
 		}
 
 		@computed get connected() {
-				return !!this.config.participantID;
+				return this.config && !!this.config.participantID;
 		}
 
 		@computed get participantsList() {
