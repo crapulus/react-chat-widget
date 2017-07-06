@@ -20,10 +20,10 @@ const style = {
         position: "absolute",
         bottom: 112,
         right: 24,
-        width: "33vw",
+        width: "50vw",
         minWidth: "360px",
         maxWidth: "720px",
-        maxHeight: "75vh",
+        maxHeight: "85vh",
         borderRadius: "1em"
     }
 }

@@ -1,24 +1,25 @@
 import React, { Component } from 'react';
-import {observer} from 'mobx-react';
+import { observer } from 'mobx-react';
 import {Card, CardHeader, CardText, CardActions} from 'material-ui/Card';
 import Avatar from 'material-ui/Avatar';
 import TextField from 'material-ui/TextField';
 import SendIcon from 'material-ui/svg-icons/content/send';
 import Messages from './Messages.jsx';
+import RaisedButton from 'material-ui/RaisedButton';
 
 @observer
 export default class Chat extends Component {
 	constructor(props) {
 		super(props)
-		this.state = { connected: false, sendOnEnter: true};
+		this.state = { userTyping:false, sendOnEnter: true};
 		this.store = props.chatStore;
 	}
 
 	activate = (open) => {
 		console.log("activating IF open ,state", open, this.state.connected);
-		if (!this.state.connected && open) 
+		if (!this.store.connected && open) 
 		{			
-			this.store.connect();
+			this.store.connect(this.props.config);
 		}
 	}
 
@@ -31,7 +32,7 @@ export default class Chat extends Component {
 			console.log("connected, chatid = " + this.store.chatId);	
 			nextState = 
 				{
-					connected:true
+					connected:true, userTyping: false
 				};
 		}
 		//active and closing - need to stop polling
@@ -39,35 +40,27 @@ export default class Chat extends Component {
 			this.store.stopPolling();
 		}
 		//active and opening - restart polling
-		if (!this.props.open && this.state.connected && nextProps.open) {
+		if (!this.props.open && nextProps.open) {
 			this.store.startPolling();
 		}
 		//inactive and opening - connect + start polling
-		if (!this.props.open && !this.state.connected && nextProps.open) {
+		if (!this.props.open && !this.store.connected && nextProps.open) {
 			this.activate(true);
 			this.store.startPolling();
 		}
 	}
 
-	componentDidMount = () => {
-		//console.log("didmount: props, state", this.props, this.state);
-		this.activate(this.props.open);
+	onChange = () => {
+		this.setState({ userTyping: true });
 	}
 
 	handleSubmit = (e) => {
 		e.preventDefault();
 		let messageinput = document.getElementById("messagetext");
 		let value = messageinput.value;
-		//test
-		if (value==="bye") 
-		{
-			this.store.stopPolling(); 
-			this.store.disconnect(); 
-			return;
-		}
 		
 		this.store.sendMessage({sender:2, message: value});			
-		//this.setState({messages: this.store.messages, cnt: this.store.messagesCount });
+		this.setState({ userTyping: false });
 		messageinput.value = "";	
 	}
 	
@@ -93,26 +86,26 @@ export default class Chat extends Component {
        <Card style={this.props.style.Chat} expanded={true}>
 		   <CardHeader
 			   title={this.props.config.HeaderText}
-			   subtitle={`Messages: ${this.cnt()}`}
-			   avatar={ <Avatar icon={<SendIcon />} color={this.props.style.primaryColor} /> }
-		   >  
-			</CardHeader>
+			   subtitle={`Messages: ${this.cnt()} - PollId:${this.store.pollingid}`}
+			   avatar={ <Avatar icon={<SendIcon />} color={this.props.style.primaryColor} /> }/>  
+
 			<CardText id="container">		
 					<Messages messages={this.store.messages}/>
-			</CardText>
-			
-			<CardActions>
+			</CardText>		
+			<CardActions style={{ padding: "1em" }}>
 				<form onSubmit={this.handleSubmit}>
 				<TextField
 					id="messagetext"
+					style={{ width:"70%", marginRight:"1em"}}
 					hintText="Your Message..."
 					onChange={this.onChange}
-					fullWidth={true}
+					fullWidth={false}
 					multiLine={!this.state.sendOnEnter}>
 				</TextField>	
+				<RaisedButton icon={<SendIcon/>} primary={true} onTouchTap={this.handleSubmit}/>			
 				</form>		
 			</CardActions>
-			
+		
 		</Card>
         );
     }

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {inject} from 'mobx-react';
+import {inject, observer} from 'mobx-react';
 import {MuiThemeProvider, getMuiTheme} from 'material-ui/styles';
 import {FloatingActionButton} from 'material-ui';
 import Chat from './Chat.jsx';
@@ -11,6 +11,7 @@ import style from './Widget.style.js';
 const muiTheme = getMuiTheme(style.Theme);
 
 @inject("chatStore")
+@observer
 class Widget extends Component {
     constructor(props) {
         super(props);

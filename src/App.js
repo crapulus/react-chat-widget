@@ -5,22 +5,29 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import Widget from './Components/Widget.jsx';
 import ChatStore from './Stores/ChatStore';
 
+const chatStore = new ChatStore();
 
 injectTapEventPlugin();
 
 class App extends Component {
-  store = new ChatStore(this.props.config);
+
+  componentWillUnmount = () => {
+    chatStore.disconnect();
+  }
+
   getLanguage = () => {
    return (this.props.config.WebSiteInfo.Language || navigator.language || "en").trim().substring(0,2);
   }
-  render() {
-    
+
+  getParams = () => {
+    return sessionStorage.getItem(this.props.config.CustomerIdentification);
+  }
+
+  render() { 
     return ( 
       <div>
-       
-
-       <Provider chatStore={this.store}>      
-          <Widget config={this.props.config} lang={this.getLanguage()}/>  
+       <Provider chatStore={chatStore}>      
+          <Widget config={this.props.config} params={this.getParams()} lang={this.getLanguage()}/>  
        </Provider>       
        
        </div>

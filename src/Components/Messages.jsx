@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import { observer } from 'mobx-react';
 import Message from './Message.jsx';
-import {List} from 'material-ui/List';
+import {GridList} from 'material-ui/GridList';
 import style from './Messages.style.js';
 
+@observer
 export default class Messages extends Component{
 
 	render() {
@@ -12,9 +14,14 @@ export default class Messages extends Component{
 		});
 		
 		return (
-			<List id="messageslist" style={style.MessageList}>
+			<GridList 
+				style={style.MessageList}
+				cols={1}
+				cellHeight="auto"
+				padding={8}
+				id="messageslist" >
 				{messages}
-			</List>
+			</GridList>
 		);
 	}
 }

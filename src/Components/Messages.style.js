@@ -1,7 +1,7 @@
 const style = {
 
     MessageList: {
-        maxHeight: "45vh",
+        maxHeight: "50vh",
         overflow: "auto",
     }
 }
