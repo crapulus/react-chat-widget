@@ -7,30 +7,34 @@ const chatClient = new ChatClient();
 
 class ChatStore {
 		constructor(params) {
-			console.log("store started", params);			
-			chatClient.start(params)
-				.then(this.startPolling)
-				.catch((err) => {
-					console.error("start error:",err);
-				})
+			console.log("store started", params);	
+			this.params = params;	
 		}
 
+		config = {};
+		eventsQueue = [];
 		@observable messages = [];
 		@observable pollingActive = false;
-		 participants = [];
-		 events = [];
-		 rootUri = chatClient.rootUri;
-		 config;
+		@observable participants = [];
 
 		//@computed get pollingActive() {return this.tick && this.tick>0}
 
-		@action startPolling = (startresult) => {	
-			if (!startresult) return;
-			console.log("start chat:",startresult.data.chat);
-			this.config = startresult.data.chat;
-			this.events = _.concat(this.events, startresult.data.chat.events);
-			this.parseEvents(startresult.data.chat.events);
-			this.tick = setInterval(this.poll, this.config.pollWaitSuggestion);		
+		@action connect = () => {	
+			if (!this.params) return;
+			chatClient.start(this.params)
+				.then(this.connectOk);
+		}
+		connectOk = (startResult) => {
+			let chat = startResult.data.chat;
+			console.log("ok - started chat:", chat);
+			this.config = chat;
+			this.eventsQueue = chat.events || [];
+		}
+
+		@action startPolling = () => {	
+			if (!this.config) return;
+			console.log("start polling:",this.config);
+			if (!this.tick)  this.tick = setInterval(this.poll, this.config.pollWaitSuggestion * 2);	
 			this.pollingActive = true;	
 		}
 
@@ -62,7 +66,7 @@ class ChatStore {
         }
 
 		parseEvents = (events) => {
-				this.events = _.concat(this.events, events);
+				//this.events = _.concat(this.events, events);
 				_.map(events, (event) => {
 					if (event.displayName && event.participantType)	
                     this.updateParticipants(event);   
@@ -109,6 +113,10 @@ class ChatStore {
 
 		@computed get sessionstate() {
 				return this.config  && this.config.participantID ? "started" : "offline";
+		}
+
+		@computed get connected() {
+				return !!this.config.participantID;
 		}
 
 		@computed get participantsList() {

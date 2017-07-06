@@ -4,10 +4,17 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+      
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch via NPM",
+            "name": "Debug",
+            "program": "${workspaceRoot}\\scripts\\start.js"
+        },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Serve BUILD",
             "runtimeExecutable": "npm",
             "windows": {
                 "runtimeExecutable": "serve.cmd"
@@ -17,12 +24,6 @@
                 "build"
             ],
             "port": 5000
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch dev",
-            "program": "${workspaceRoot}\\scripts\\start.js"
         }
     ]
 }

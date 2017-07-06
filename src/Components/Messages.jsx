@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Message from './Message.jsx';
+import {List} from 'material-ui/List';
 
 export default class Messages extends Component{
 	
@@ -10,9 +11,9 @@ export default class Messages extends Component{
 		});
 		
 		return (
-			<div className='Messages'>
+			<List style={this.props.style}>
 				{messages}
-			</div>
+			</List>
 		);
 	}
 }

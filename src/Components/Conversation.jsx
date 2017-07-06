@@ -29,7 +29,6 @@ export default class Conversation extends Component {
 
 		return (
 			<div className='Conversation'>
-				<Header name={this.headerText()} />
 				<div className="container">
 					<Messages messages={this.props.messages} />
 				</div>

@@ -1,22 +1,21 @@
 import React, { Component } from 'react';
-import { observer, inject} from 'mobx-react';
-import $ from 'jquery';
-import './style.css';
-import Conversation from './Conversation.jsx';
-import Input from './Input.jsx';
+import Paper from 'material-ui/Paper';
+import {Card, CardText, CardActions} from 'material-ui/Card';
+import AppBar from 'material-ui/AppBar';
+import TextField from 'material-ui/TextField';
+import Messages from './Messages.jsx';
 
-import DevTools from 'mobx-react-devtools';
-
-
-@inject("chatStore")
-@observer
 export default class Chat extends Component {
 
-	store = this.props.chatStore
+	store = this.props.chatStore;
 
-	handleSubmit = (event) => {
-		event.preventDefault();
-		let messageinput = event.target.message;
+	componentDidMount = () => {
+		this.store.connect()
+	}
+
+	handleSubmit = (e) => {
+		e.preventDefault();
+		let messageinput = document.getElementById("messagetext");
 		let value = messageinput.value;
 		//test
 		if (value==="bye") 
@@ -26,18 +25,21 @@ export default class Chat extends Component {
 			return;
 		}
 		
-		this.store.sendMessage({sender:2, message: value});
-		
-		let messages = this.store.messages;					
-		this.setState({messages: messages, cnt: this.store.messagesCount });
+		this.store.sendMessage({sender:2, message: value});			
+		this.setState({messages: this.store.messages, cnt: this.store.messagesCount });
 		messageinput.value = "";	
 	}
 	
-	scrollWindow() {
-		let windowHeight = $('.Messages').height();
-		$(".container").animate({scrollTop : ($(".container")[0].scrollHeight)}, windowHeight);
+	handleChange = (e, value) => {
+		////todo: set typing to true
+		//e.preventDefault();
+		//console.log(value, e.target, e.target.value);
 	}
 
+	scrollWindow() {
+		//let windowHeight = $('.Messages').height();
+		//$(".container").animate({scrollTop : ($(".container")[0].scrollHeight)}, windowHeight);
+	}
 
 	componentWillUpdate = (nextProps, nextState) => {
 		this.scrollWindow();
@@ -47,15 +49,35 @@ export default class Chat extends Component {
 		this.store.disconnect();
 	}
 	
-
     render() {		
         return (		
-          <div className='App'>
-			    <DevTools/>
-       
-				<Conversation messages={this.store.messages} participants={this.store.participants} lang={this.props.lang}/>
-				<Input onSubmit={this.handleSubmit} />
-			</div>
+       <Card style={this.props.style.Card} expanded={true}>
+		   	<AppBar
+				title={this.props.config.HeaderText}
+				iconClassNameLeft="send"
+				showMenuIconButton={false}
+				>                            
+			</AppBar>
+
+			<CardText style={this.props.style.Messages}>
+			
+					<Messages messages={this.store.messages} />
+			
+			</CardText>
+			<Paper zDepth={3}>
+			<CardActions >
+				<form onSubmit={this.handleSubmit}>
+				<TextField
+					id="messagetext"
+					hintText="Your Message"
+					onChange={this.onChange}
+					fullWidth={true}
+					multiLine={false}>
+				</TextField>
+				</form>
+			</CardActions>
+			</Paper>
+		</Card>
         );
     }
 }

@@ -1,33 +1,36 @@
 @import "https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700";
 #app {
+  background: url(http://www.transportmedia.be/wp-content/uploads/2015/01/Renault_Trucks_T_1.jpg);
+  background-size: cover;
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 33vw;
+  top: 0;
+  left: 0;
+  width: 100vw;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   font-family: 'Open Sans', sans-serif;
-  -webkit-box-align: right;
-      -ms-flex-align: right;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
           align-items: center;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  height: 50vh;
+  height: 100vh;
 }
 
 .App {
-  height: 100vh;
-  width: 100vw;
+  height: 90vh;
+  width: 75vw;
   box-shadow: 0 10px 20px rgba(19, 27, 35, 0.075);
 }
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 600px) {
   .App {
     width: 100vw;
     height: 100vh;
   }
 }
+
 .App .Conversation {
   height: calc(100% - 60px);
   width: 100%;

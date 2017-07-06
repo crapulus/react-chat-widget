@@ -1,21 +1,12 @@
 import React, { Component } from 'react';
+import {ListItem} from 'material-ui/List';
 
-export default class Message extends Component{
-	render() {
-		if(this.props.sender === 1) {
-			this.classNames = "Message Message--you";
-		} else {
-			this.classNames = "Message Message--them"; 
-		}
+export default class Message extends Component {
+	render() { 
 		return (
-			<div className={this.classNames}>				
-				<span>
-					<label className="TimeStamp">
-						{this.props.timeStamp.format("HH:MM:ss") +  " - " + this.props.timeStamp.fromNow()}
-					</label>
-					{this.props.message}
-					</span>	
-			</div>
-		);
-	}
+		<ListItem
+			primaryText={this.props.message}
+		    secondaryText={this.props.timeStamp.format("HH:MM") + " " + this.props.timeStamp.fromNow()  }
+			/>
+	)}
 }

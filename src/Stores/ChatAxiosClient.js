@@ -24,7 +24,9 @@ axios
     });
 
 export default class ChatClient {
-    
+    constructor() {
+        console.log("init chatclient: ", axios.rootUri);
+    }
     start = (params) => {        
         console.log("sending start:",axios.rootUri + "chat/start", params)
         return axios
