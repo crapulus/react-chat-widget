@@ -6,6 +6,7 @@ import TextField from 'material-ui/TextField';
 import SendIcon from 'material-ui/svg-icons/content/send';
 import Messages from './Messages.jsx';
 import RaisedButton from 'material-ui/RaisedButton';
+import T from './Chat.Translations.json';
 
 @observer
 export default class Chat extends Component {
@@ -25,7 +26,7 @@ export default class Chat extends Component {
 	}
 
 	cnt = () => {return this.store.messages.length || 0}
-	i18n = (ref) => {return this.props.translations[this.store.language || "en"][ref] || `${ref} not found`}
+	i18n = (ref) => {return T[this.store.language || "en"][ref] || `${ref} not found`}
 
 	componentWillUpdate = (nextProps, nextState) => {
 

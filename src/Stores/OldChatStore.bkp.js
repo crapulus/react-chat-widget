@@ -3,14 +3,15 @@ import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/fr';
 import 'moment/locale/nl';
-import ChatClient from './../Services/ChatAxiosClient';
-import { startParametersModel } from '../Services/ChatCommonResponseModels';
+
+import ChatClient from './ChatAxiosClient';
+import chatStartParamsModel from './ChatStartParamsModel.json';
 
 useStrict();
 
 const debugMode = true; //verbose store output not for prod!!!
 const storeSessionStorageKey = "nrcwv1_cfg"; // const linked to the widget script as deployed / see public/index.html
-const chatClient = new ChatClient({mock: debugMode}); //set mocked api for debug
+const chatClient = new ChatClient();
 
 class ChatStore {
 
@@ -31,7 +32,7 @@ class ChatStore {
 			//got params object
 			if (!!p) {
 				if (debugMode) console.log("global widget params found:" , p);
-				let params = startParametersModel; 
+				let params = chatStartParamsModel; 
         		params.CustomerIdentifier = p.customeridentifier;
 				
 				//override language

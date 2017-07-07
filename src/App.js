@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {Provider} from 'mobx-react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 //import DevTools from 'mobx-react-devtools'; //dev-only
-import Widget from './Components/Widget.jsx';
+import Widget from './Containers/Widget.jsx';
 import ChatStore from './Stores/ChatStore';
 
 const chatStore = new ChatStore();
