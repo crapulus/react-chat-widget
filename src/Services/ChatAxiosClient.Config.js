@@ -1,13 +1,13 @@
 import { commonResponseFail } from './ChatCommonResponseModels';
 
 const config = {
-    debugMode: true, //verbose store output not for prod!!!
+    debugMode: false, //verbose store output not for prod!!!
     rootUri: "https://chatapi-acc.n-allo.be/api/",
     responseHook: (response) => {
-        //console.info("intercepted response status:", response.status);
-        // if (response.data.chat.events) {
-        //    // console.info("intercepted response with events:", response.data.chat.events);
-        // } 
+        console.info("intercepted response status:", response.status);
+         if (response.data.chat.events) {
+             console.info("intercepted response with events:", response.data.chat.events);
+         } 
         return response;
         },
     errorHook: (error) => {

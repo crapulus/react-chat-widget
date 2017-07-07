@@ -1,0 +1,22 @@
+ [{
+     "type": "text",
+     "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc4",
+     "contentType": "text/plain",
+     "value": "Sample message from agent :-)",
+     "displayName": "Marc",
+     "participantType": "Agent"
+ }, {
+     "type": "text",
+     "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc5",
+     "contentType": "text/plain",
+     "value": "Can you please tell me my account balance? My account number is 12345.",
+     "displayName": "John Doe",
+     "participantType": "WebUser"
+ }, {
+     "type": "text",
+     "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc6",
+     "contentType": "text/plain",
+     "value": "Your account balance is 123.45$",
+     "displayName": "Alan Agent",
+     "participantType": "Agent"
+ }]

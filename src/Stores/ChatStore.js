@@ -8,22 +8,22 @@ import { startParametersModel } from '../Services/ChatCommonResponseModels';
 
 useStrict();
 
-const debugMode = true; //verbose store output not for prod!!!
+const debugMode = false; //verbose store output not for prod!!!
 const storeSessionStorageKey = "nrcwv1_cfg"; // const linked to the widget script as deployed / see public/index.html
-const chatClient = new ChatClient({mock: debugMode}); //set mocked api for debug
+const chatClient = new ChatClient({mock: true}); //set mocked api for debug
 
 class ChatStore {
 
-		@observable chatId = "";
-		@observable participantId = "";
-		@observable participantUserName = "none";
 		@observable pollWait = 2000; //default 3s;
 		@observable messages = [];
 		@observable participants = [];
-		@observable pollingActive = false;
-		@observable pollingid = -1;
-		@observable headerText = "Chat";
 		@observable language = "en";
+		@observable pollingActive = false;
+		@observable participantId = "";
+		 chatId = "";
+		 participantUserName = "none";
+		 pollingid = -1;
+		 headerText = "Chat";
 
 	 	connect = () => {	
 			let p = JSON.parse(sessionStorage.getItem(storeSessionStorageKey));
@@ -60,7 +60,7 @@ class ChatStore {
 				if (debugMode) console.log("updating chat properties: ", chat.status.type);
 				//this.messages.length = 0;
 				this.chatId = chat.chatID;
-				this.particpantId = chat.participantID;
+				this.participantId = chat.participantID;
 				this.pollWait = chat.pollWaitSuggestion;	
 				this.parseResponse("start", chat);				
 			} else {
@@ -83,7 +83,7 @@ class ChatStore {
 			this.pollingid = -1;
 		}
 
-		@action poll = () => {
+		poll = () => {
 			if (debugMode) console.log("store polling check: active, pid, pollingId, messages", this.pollingActive, this.participantId, this.pollingid, this.messagesCount);
 			if (!this.pollingActive || !this.participantId) return;
 			if (debugMode) console.log(`polling ${this.participantId}...`);
@@ -104,7 +104,7 @@ class ChatStore {
 			}
 		}
 
-        updateParticipants = (event) => {
+        @action updateParticipants = (event) => {
              if (event.type==="participantState" || event.participantType==="System" ) return;
 
              let newp = { key:event.participantID, name: event.displayName || "", type: event.participantType || "None", typing: event.state==="active" || false };
