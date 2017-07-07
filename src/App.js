@@ -15,19 +15,11 @@ class App extends Component {
     chatStore.disconnect();
   }
 
-  getLanguage = () => {
-   return (this.props.config.WebSiteInfo.Language || navigator.language || "en").trim().substring(0,2);
-  }
-
-  getParams = () => {
-    return sessionStorage.getItem(this.props.config.CustomerIdentification);
-  }
-
   render() { 
     return ( 
       <div>
        <Provider chatStore={chatStore}>      
-          <Widget config={this.props.config} params={this.getParams()} lang={this.getLanguage()}/>  
+          <Widget />  
        </Provider>       
        
        </div>

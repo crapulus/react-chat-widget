@@ -7,6 +7,7 @@ import ChatIcon from 'material-ui/svg-icons/communication/chat';
 import CloseIcon from 'material-ui/svg-icons/navigation/expand-more';
 
 import style from './Widget.style.js';
+import Translations from './Chat.Translations.json';
 
 const muiTheme = getMuiTheme(style.Theme);
 
@@ -40,6 +41,10 @@ class Widget extends Component {
             : "none";
         return s;
     }
+    
+    getTranslations = () => {
+         return Translations;
+    }
 
     render() {
         return (
@@ -51,7 +56,7 @@ class Widget extends Component {
                         zDepth={2}>
                         {this.state.open ? <CloseIcon/> : <ChatIcon/>}
                     </FloatingActionButton>
-                    <Chat open={this.state.open} config={this.props.config} chatStore={this.props.chatStore} style={this.getStyle()}/>                    
+                    <Chat open={this.state.open} translations={this.getTranslations()} chatStore={this.props.chatStore} style={this.getStyle()}/>                    
                 </div>
             </MuiThemeProvider>
         );

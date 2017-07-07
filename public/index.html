@@ -54,31 +54,29 @@
       <h2>Header 3</h2>
       Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit fugiat corporis fugit distinctio. Magnam consequuntur
       laudantium beatae minima eaque. Illum maxime excepturi, blanditiis velit laboriosam molestias dolore magnam veritatis
-      repudiandae.</article>
-    <aside>
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus rem est quia iste ducimus eligendi quaerat exercitationem
-      officiis, in quam asperiores maxime blanditiis mollitia. Numquam, quas nemo molestiae quos doloremque!
-    </aside>
+      repudiandae.
+    </article>
   </content>
 
-<!--Start Chat Widget-->
-  <div id="container"></div>
-  <!--Config-->
-  <script>
-    config = {
-      customerIdentification:  "76d6a924-567c-420b-9abc-e5ac34248300",
-      title: "Super Duper Chat",
-      language: "nl",
-      topic: "GENERAL",
-      segment: "BUSINESS",
-      username: "Tommy the Cat",
-      infos:"More text \nAlso This...."
-    }
-    sessionStorage.setItem(config.customerIdentification,JSON.stringify(config));
-  </script>
-  <!--Librairies -->
-  <script id="path-to-bundle-xxx-js"></script>
-<!--End Chat Widget-->
 
+    <!-- *************** Start Chat Widget *************** -->
+    <div id="nrcwv1"></div>
+    <!--Config-->
+    <script>
+        //set global params
+        config = {
+            customeridentifier: "76d6a924-567c-420b-9abc-e5ac34248300",
+            title: "Chat Widget Demo",
+            language: "en",
+            topic: "GENERAL",
+            segment: "BUSINESS",
+            username: "Tommy the Cat",
+            infos: "More text \nAlso This...."
+        };
+        //cache params in session
+        sessionStorage.setItem("nrcwv1_cfg", JSON.stringify(config))
+        //JS Bundle tag will be added on build
+    </script>
+    <!-- *************** End Chat Widget ************** -->
 </body>
 </html>

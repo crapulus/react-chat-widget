@@ -1,7 +1,7 @@
 {
   "name": "react-chat-widget",
   "version": "0.1.0",
-  "homepage": "http://react-chat-widget.fake.org/acc/widget/",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "autoprefixer": "7.1.1",

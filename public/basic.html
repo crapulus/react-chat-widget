@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Chat Widget Basic Test Page</title>
+
+    <!--<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> -->
+
+    <style type="text/css">
+        body {
+            background-color: lightgray;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <noscript>
+        You need to enable JavaScript to run this app.
+    </noscript>
+
+    <!-- *************** Start Chat Widget *************** -->
+     <div id="nrcwv1"></div>
+    <script>
+        config = {
+            customeridentifier: "76d6a924-567c-420b-9abc-e5ac34248300",
+            title: "Chat Widget Demo",
+            language: "en",
+            topic: "GENERAL",
+            segment: "BUSINESS",
+            username: "Tommy the Cat",
+            infos: "More text \nAlso This...."
+        }, sessionStorage.setItem("nrcwv1_cfg", JSON.stringify(config))
+    </script>
+    <script type="text/javascript" src="./static/js/main.bf58d39b.js"></script>
+    <!-- *************** End Chat Widget ************** -->
+</body>
+
+</html>

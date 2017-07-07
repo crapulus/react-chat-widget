@@ -1,39 +1,58 @@
 import {observable, computed, action, useStrict} from "mobx";
-import ChatClient from './ChatAxiosClient';
 import _ from 'lodash';
 import moment from 'moment';
+import 'moment/locale/fr';
+import 'moment/locale/nl';
+
+import ChatClient from './ChatAxiosClient';
+import chatStartParamsModel from './ChatStartParamsModel.json';
 
 useStrict();
 
 const debugMode = true;
+const storeSessionStorageKey = "nrcwv1_cfg";
+
 const chatClient = new ChatClient();
 
 class ChatStore {
 
 		@observable chatId = "";
 		@observable participantId = "";
-		@observable participantUserName = "Anonymous";
+		@observable participantUserName = "none";
 		@observable pollWait = 2000; //default 3s;
 		@observable messages = [];
 		@observable participants = [];
 		@observable pollingActive = false;
 		@observable pollingid = -1;
+		@observable headerText = "Chat";
+		@observable language = "en";
 
-	 	connect = (params) => {	
-			console.log("store connecting with config =", params);	
-			let p = JSON.parse(sessionStorage.getItem(params.CustomerIdentifier));
-			if (debugMode) console.log("global widget params found:" , p);
+	 	connect = () => {	
+			let p = JSON.parse(sessionStorage.getItem(storeSessionStorageKey));
+			console.log("store connecting with config =", storeSessionStorageKey, sessionStorage.getItem(storeSessionStorageKey));	
+			//got params object
 			if (!!p) {
+				if (debugMode) console.log("global widget params found:" , p);
+				let params = chatStartParamsModel; 
+        		params.CustomerIdentifier = p.customeridentifier;
+				
 				//override language
-				params.WebSiteInfo.Language = !!p.language ? p.language : params.WebSiteInfo.Language;
+				if (debugMode) console.log(`Widget Language:${p.language} - Browser Language:${navigator.language}`);
+				this.language = !!p.language ? p.language : (navigator.language || navigator.userAgent.language);
+				if (debugMode) console.log(`Setting language to ${this.language}`); 
+        		params.WebSiteInfo.Language = p.language;
+		
 				//create title text param
-				params.HeaderText = p.title || "Chat";
+				this.headerText = (p.title || this.headerText) + " (" + this.language.toUpperCase() + ")";
+				
 				//override participant username if any
 				this.participantUserName = !!p.username ? p.username : this.participantUserName;
+				params.Participant.LastName = this.participantUserName;
+				params.Participant.Firstname = this.participantUserName;
+				if (debugMode) console.log("connecting store to chatapi...", params);
+				chatClient.start(params)
+					.then(this.connectOk);
 			}
-			if (debugMode) console.log("connecting store to chatapi...");
-			chatClient.start(params)
-				.then(this.connectOk);
 		}
 
 		@action connectOk = (connectResponse) => {
@@ -44,7 +63,7 @@ class ChatStore {
 				this.messages.length = 0;
 				this.chatId = chat.chatID;
 				this.particpantId = chat.participantID;
-				this.pollWait = chat.pollWaitSuggestion;
+				this.pollWait = chat.pollWaitSuggestion;	
 				this.parseResponse("start", chat);
 				this.startPolling();
 			} else {
@@ -57,14 +76,14 @@ class ChatStore {
 			if (this.pollingid === -1) {
 				if (debugMode) console.log("start polling:",this.pollWait, this.tick);
 				this.pollingActive = true;
-				this.pollingid = setInterval(this.poll, this.pollWait);	
+				this.pollingid = window.setInterval(this.poll, this.pollWait);	
 			}
 		}
 
 		@action stopPolling = () => {	
 			if (debugMode) console.log("stopped polling");
 			this.pollingActive = false;
-			clearInterval(this.pollingid);
+			window.clearInterval(this.pollingid);
 		}
 
 		@action poll = () => {
@@ -112,7 +131,14 @@ class ChatStore {
 								if (event.value) 
 								{
 									let sender = (event.participantType==="WebUser") ? 1 : 2;
-									this.messages = this.messages.concat([{key:event.sequenceNumber, sender:sender, displayName:event.displayName, message:event.value, timeStamp: new moment()}]);
+									let timeStamp = new moment(); timeStamp.locale(this.language);
+									this.messages = this.messages.concat([{
+										key:event.sequenceNumber, 
+										sender:sender, 
+										displayName:event.displayName, 
+										message:event.value, 
+										timeStamp: timeStamp
+									}]);
 								}                            
 								break;
 							case "participantStateChanged":

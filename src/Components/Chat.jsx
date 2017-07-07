@@ -11,6 +11,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 export default class Chat extends Component {
 	constructor(props) {
 		super(props)
+		
 		this.state = { userTyping:false, sendOnEnter: true};
 		this.store = props.chatStore;
 	}
@@ -19,11 +20,12 @@ export default class Chat extends Component {
 		console.log("activating IF open ,state", open, this.state.connected);
 		if (!this.store.connected && open) 
 		{			
-			this.store.connect(this.props.config);
+			this.store.connect();
 		}
 	}
 
 	cnt = () => {return this.store.messages.length || 0}
+	i18n = (ref) => {return this.props.translations[this.store.language || "en"][ref] || `${ref} not found`}
 
 	componentWillUpdate = (nextProps, nextState) => {
 		//console.log("willupdate: open, active, next", this.props.open, this.state.connected, nextProps.open, nextState.connected);
@@ -85,8 +87,8 @@ export default class Chat extends Component {
         return (		
        <Card style={this.props.style.Chat} expanded={true}>
 		   <CardHeader
-			   title={this.props.config.HeaderText}
-			   subtitle={`Messages: ${this.cnt()} - PollId:${this.store.pollingid}`}
+			   title={this.store.headerText}
+			   subtitle={`${this.i18n("subHeader")}: ${this.cnt()} - PollId:${this.store.pollingid}`}
 			   avatar={ <Avatar icon={<SendIcon />} color={this.props.style.primaryColor} /> }/>  
 
 			<CardText id="container">		
@@ -97,7 +99,7 @@ export default class Chat extends Component {
 				<TextField
 					id="messagetext"
 					style={{ width:"70%", marginRight:"1em"}}
-					hintText="Your Message..."
+					hintText={this.i18n("placeHolder")}
 					onChange={this.onChange}
 					fullWidth={false}
 					multiLine={!this.state.sendOnEnter}>

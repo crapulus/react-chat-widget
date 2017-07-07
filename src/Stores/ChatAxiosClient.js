@@ -2,10 +2,9 @@ import axios from 'axios';
 
 ////LOCAL REST MPOCKS for dev
 // eslint-disable-next-line
-//import mock from './ChatAxiosClient.Mock';
+import mock from './ChatAxiosClient.Mock';
 
-axios.rootUri =  "https://chatapi-acc.n-allo.be/api/";
-
+axios.rootUri =  "https://chatapi-dev.n-allo.be/api/";
 //axios.rootUri =  "http://chatapi.n-allo.be/api/";//PROD
 //axios.rootUri =  "http://chatapi-dev.n-allo.be/api/";//DEV/ACC PUBLIC: FAILED 404
 //axios.rootUri =  "http://chat-acc.engie-electrabel.be/api/";//ACC PUBLIC
@@ -27,8 +26,8 @@ export default class ChatClient {
     constructor() {
         console.log("init chatclient: ", axios.rootUri);
     }
-    start = (params) => {        
-        console.log("sending start:",axios.rootUri + "chat/start", params)
+    start = (params) => {       
+        console.log("sending start (p, default): " + axios.rootUri + "chat/start", params);
         return axios
             .post(axios.rootUri+"chat/start", params);         
     }
