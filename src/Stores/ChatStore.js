@@ -9,9 +9,8 @@ import chatStartParamsModel from './ChatStartParamsModel.json';
 
 useStrict();
 
-const debugMode = true;
-const storeSessionStorageKey = "nrcwv1_cfg";
-
+const debugMode = true; //verbose store output not for prod!!!
+const storeSessionStorageKey = "nrcwv1_cfg"; // const linked to the widget script as deployed / see public/index.html
 const chatClient = new ChatClient();
 
 class ChatStore {
@@ -29,7 +28,7 @@ class ChatStore {
 
 	 	connect = () => {	
 			let p = JSON.parse(sessionStorage.getItem(storeSessionStorageKey));
-			console.log("store connecting with config =", storeSessionStorageKey, sessionStorage.getItem(storeSessionStorageKey));	
+			if (debugMode) console.log("store connecting with config =", storeSessionStorageKey, sessionStorage.getItem(storeSessionStorageKey));	
 			//got params object
 			if (!!p) {
 				if (debugMode) console.log("global widget params found:" , p);
@@ -60,39 +59,40 @@ class ChatStore {
 				let chat = connectResponse.data.chat;
 				if (debugMode) console.log("started chat: ", chat.status.type);
 				if (debugMode) console.log("updating chat properties: ", chat.status.type);
-				this.messages.length = 0;
+				//this.messages.length = 0;
 				this.chatId = chat.chatID;
 				this.particpantId = chat.participantID;
 				this.pollWait = chat.pollWaitSuggestion;	
-				this.parseResponse("start", chat);
-				this.startPolling();
+				this.parseResponse("start", chat);				
 			} else {
-				console.warn("start chat failed: ", connectResponse.data || connectResponse);
+				if (debugMode) console.warn("start chat failed: ", connectResponse.data || connectResponse);
 				//what to do if failed start?		
 			}
 		}
 
-		@action startPolling = () => {	
-			if (this.pollingid === -1) {
-				if (debugMode) console.log("start polling:",this.pollWait, this.tick);
-				this.pollingActive = true;
-				this.pollingid = window.setInterval(this.poll, this.pollWait);	
-			}
+		@action startPolling = () => {
+			if (this.pollingid!==-1) return;	
+			if (debugMode) console.log("start polling:",this.pollWait, this.pollingid);
+			this.pollingActive = true;
+			this.pollingid = window.setInterval(this.poll, this.pollWait);	
 		}
 
 		@action stopPolling = () => {	
 			if (debugMode) console.log("stopped polling");
 			this.pollingActive = false;
 			window.clearInterval(this.pollingid);
+			this.pollingid = -1;
 		}
 
 		@action poll = () => {
-			if (debugMode) console.log("store polling check active, tick, messages", this.pollingActive, this.tick, this.messagesCount);
+			if (debugMode) console.log("store polling check: active, pid, pollingId, messages", this.pollingActive, this.participantId, this.pollingid, this.messagesCount);
 			if (!this.pollingActive || !this.participantId) return;
 			if (debugMode) console.log(`polling ${this.participantId}...`);
 			chatClient.poll(this.participantId)
 				.then((response) => { 
-					if (!!response && !!response.data) this.parseResponse("poll", response.data.chat)
+					let chat = response.data.chat;
+					if (debugMode) console.log("poll response:", chat);
+					this.parseResponse("poll", chat);
 					}
 				);
 		}
@@ -111,7 +111,7 @@ class ChatStore {
              let newp = { key:event.participantID, name: event.displayName || "", type: event.participantType || "None", typing: event.state==="active" || false };
              let found = _.find(this.participants, (p) => {return p.key===newp.key} );
              if (found) {
-                //console.log("participant found", found);
+                if (debugMode) console.log("participant found", found);
                 //this.participants = _.remove(this.participants, (p) => {return p.key===found.key});
              }  else {
                 this.participants = _.concat(this.participants, newp);
@@ -119,12 +119,10 @@ class ChatStore {
         }
 
 		@action parseEvents = (events) => {
-				console.log(`parsing ${events.length} events`);
+				if (debugMode) console.log(`parsing ${events.length} event(s)`, events);
 				//this.events = _.concat(this.events, events);
-				_.map(events, (event) => {
-					if (event.displayName && event.participantType)	
-                    this.updateParticipants(event);   
-                     
+				_.map(_.orderBy(events,e => {return e.sequenceNumber}), (event) => {
+					if (event.displayName && event.participantType)	this.updateParticipants(event);   
 					//todo complete	& improve			
 						switch (event.type) {
 							case "text":
@@ -142,10 +140,10 @@ class ChatStore {
 								}                            
 								break;
 							case "participantStateChanged":
-								console.log("participant state:",event);
+								if (debugMode) console.log("participant state:",event);
 								break;
 							case "typingIndicator":
-								console.log("typing:",event);
+								if (debugMode) console.log("typing:",event);
 								break;
 							default:
 								break;
@@ -154,15 +152,18 @@ class ChatStore {
 		}
 		
 		@action sendMessage(message) {
-			message.timeStamp = new moment();
+			message.timeStamp = new moment(); 
+			message.timeStamp.locale(this.language);
 			chatClient.send(this.particpantId, message.message)
 			.then((response) => { 
-					if (!!response && !!response.data) this.parseResponse("send", response.data.chat)
+					if (debugMode) console.log("received send reponse:", response);
+					if (!!response.data && !!response.data.chat) this.parseResponse("send", response.data.chat)
 					});
 		}
 
 		@action disconnect() {	
-			if (this.tick) clearInterval(this.tick);			
+			if (debugMode) console.log("disconnecting:", this.pollingid, this.participantId);
+			if (this.pollingid) window.clearInterval(this.pollingid);			
 			chatClient.disconnect(this.participantId)
 			.then((response) => this.parseResponse("exit", response.data.chat));
 		}

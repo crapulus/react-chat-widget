@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+const debugMode = true; //verbose store output not for prod!!!
+
 ////LOCAL REST MPOCKS for dev
 // eslint-disable-next-line
 import mock from './ChatAxiosClient.Mock';
@@ -19,15 +21,16 @@ axios
         // } 
         return response;
     }, (error) => {
-        console.warn("error in response:", error)
+        console.warn("error in api response:", error)
     });
+
 
 export default class ChatClient {
     constructor() {
-        console.log("init chatclient: ", axios.rootUri);
+        if (debugMode) console.log("init chatclient: ", axios.rootUri);
     }
     start = (params) => {       
-        console.log("sending start (p, default): " + axios.rootUri + "chat/start", params);
+        if (debugMode) console.log("sending start (p, default): " + axios.rootUri + "chat/start", params);
         return axios
             .post(axios.rootUri+"chat/start", params);         
     }
@@ -59,7 +62,7 @@ export default class ChatClient {
                 console.log("test done", result.data);
             })
             .catch((err) => {
-                console.error(err);
+                console.error("test error", err);
                 return null;
             })
     }

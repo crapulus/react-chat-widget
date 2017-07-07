@@ -17,7 +17,7 @@ export default class Chat extends Component {
 	}
 
 	activate = (open) => {
-		console.log("activating IF open ,state", open, this.state.connected);
+		console.log("activating chat: open ,store connected", open, this.store.connected);
 		if (!this.store.connected && open) 
 		{			
 			this.store.connect();
@@ -28,27 +28,30 @@ export default class Chat extends Component {
 	i18n = (ref) => {return this.props.translations[this.store.language || "en"][ref] || `${ref} not found`}
 
 	componentWillUpdate = (nextProps, nextState) => {
-		//console.log("willupdate: open, active, next", this.props.open, this.state.connected, nextProps.open, nextState.connected);
-		
+
+		//active and closing - need to stop polling
+		if (!nextProps.open) {
+			console.log("de-activating chat: open ,store connected", nextProps.open, this.store.connected);
+			this.store.stopPolling();
+		}
+		//active and opening - restart polling
+		if (!this.props.open && nextProps.open) {
+			console.log("re-activating chat: open ,store connected", nextProps.open, this.store.connected);
+			this.store.startPolling();
+		}
+		//inactive and opening - connect + start polling
+		if (!this.props.open && !this.store.connected && nextProps.open) {
+			console.log("first-activating chat: open ,store connected", nextProps.open, this.store.connected);
+			this.activate(true);
+			this.store.startPolling();
+		}
+		// //update state??
 		if (nextProps.chatStore.connected) {
 			console.log("connected, chatid = " + this.store.chatId);	
 			nextState = 
 				{
 					connected:true, userTyping: false
 				};
-		}
-		//active and closing - need to stop polling
-		if (!nextProps.open) {
-			this.store.stopPolling();
-		}
-		//active and opening - restart polling
-		if (!this.props.open && nextProps.open) {
-			this.store.startPolling();
-		}
-		//inactive and opening - connect + start polling
-		if (!this.props.open && !this.store.connected && nextProps.open) {
-			this.activate(true);
-			this.store.startPolling();
 		}
 	}
 
@@ -88,7 +91,7 @@ export default class Chat extends Component {
        <Card style={this.props.style.Chat} expanded={true}>
 		   <CardHeader
 			   title={this.store.headerText}
-			   subtitle={`${this.i18n("subHeader")}: ${this.cnt()} - PollId:${this.store.pollingid}`}
+			   subtitle={`${this.store.participantUserName} - ${this.i18n("subHeader")}: ${this.cnt()}`}
 			   avatar={ <Avatar icon={<SendIcon />} color={this.props.style.primaryColor} /> }/>  
 
 			<CardText id="container">		

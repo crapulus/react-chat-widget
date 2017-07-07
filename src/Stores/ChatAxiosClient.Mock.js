@@ -1,24 +1,21 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-
+import {commonResponse, commonResponseFail} from './ChatCommonResponseModels';
 
 // MOCK REST API //
-axios.rootUri =  "http://chatapi.n-allo.dev/api/";
 const mock = new MockAdapter(axios, {delayResponse: 500});
-const commonResponse = {chat: { pollWaitSuggestion: 3000, cfgVer: 1, status:{type:"success"}, events:[]}}
-const commonResponseFail = {chat: { pollWaitSuggestion: 3000, cfgVer: 1, status:{type:"failure", error:"fake error #12345 from back-end"}}}
-let sequenceNumber = 0;
-
+mock.sequenceNumber = 0;
 
 //start
 mock
     .onPost(/chat\/start/)
-    .reply(function(config) {
+    .reply(function (config) {
         const startParams = JSON.parse(config.data);
-        console.warn("**** mocking start ****", startParams);
-        sequenceNumber++;
+        console.warn("**** mocking start ****", startParams, startParams.WebSiteInfo.Language);
+        mock.sequenceNumber++;
+        let texts = {fr:"Bienvenue!", nl:"Welkom!", en:"Welcome!"};
         return [
-            200,  {
+            200, {
                 chat: {
                     pollWaitSuggestion: 3000,
                     cfgVer: 1,
@@ -33,97 +30,80 @@ mock
                         {
                             "type": "text",
                             "participantID": "00000000-0000-0000-0000- 000000000000",
-                            "sequenceNumber": sequenceNumber,
+                            "sequenceNumber": mock.sequenceNumber,
                             "conversationSequenceNumber": 0,
                             "contentType": "text/plain",
-                            "value": "Welcome to our chat!",
+                            "value": texts[startParams.WebSiteInfo.Language],
                             "displayName": "IC",
                             "participantType": "System"
                         }, {
                             "type": "participantState",
                             "participantID": "00000000-0000-0000-0000- 000000000000",
-                            "sequenceNumber": sequenceNumber+1,
+                            "sequenceNumber": mock.sequenceNumber + 1,
                             "state": "active",
                             "displayName": startParams.Participant.LastName || "Anonymous",
-                            "participantType": "Agent"
+                            "participantType": "WebUser"
                         }
                     ]
-                }
-            }];
+                 }
+            }
+        ];
     });
 
 //poll
 mock
     .onGet(/chat\/poll/)
-        .reply(function(config) {
-            sequenceNumber++;
-            return new Promise(function(resolve, reject) {
-                if (!!config.data) 
-                {
-                    console.warn("**** mocking poll request ****", config.url);
-                let response =  commonResponse;
-                console.warn("**** mocking poll response template = ", response);
-                response.events = [
-                        {
-                            "type": "text",
-                            "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc5",
-                            "sequenceNumber": sequenceNumber,
-                            "conversationSequenceNumber": 0,
-                            "contentType": "text/plain",
-                            "value": "Can you please tell me my account balance? My account number is 12345.",
-                            "displayName": "John Doe",
-                            "participantType": "WebUser"
-                        }, {
-                            "type": "text",
-                            "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc6",
-                            "sequenceNumber": sequenceNumber++,
-                            "conversationSequenceNumber": 0,
-                            "contentType": "text/plain",
-                            "value": "Your account balance is 123.45$",
-                            "displayName": "Alan Agent",
-                            "participantType": "Agent"
-                        }
-                    ];
-                console.warn("**** mocking poll response ****", response);
-                resolve([200, response]);
-                } 
-                else 
-                {
-                    reject([200, commonResponseFail])
-                }
-                
-            })
-        });
-
+    .reply(function (config) {
+        const data = JSON.parse(config.data);
+        console.warn("**** mocking poll request ****", data, config.url);
+        mock.sequenceNumber++;
+        let response = commonResponse;
+        response.events = [
+            {
+                "type": "text",
+                "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc5",
+                "sequenceNumber": mock.sequenceNumber,
+                "conversationSequenceNumber": 0,
+                "contentType": "text/plain",
+                "value": "Sample message from agen :-)",
+                "displayName": "Marc",
+                "participantType": "Agent"
+            }
+        ];
+        console.warn("**** mocking poll response ****", response);
+        return [200, { chat: response }];
+    });
 //Send
 mock
     .onPost(/chat\/sendmessage/)
-        .reply(function(config) {
+    .reply(function (config) {
         const data = JSON.parse(config.data);
         console.warn("**** mocking send request ****", data, config.url);
-        sequenceNumber++
+        mock.sequenceNumber++;
         let response = commonResponse;
-      
         response.events = [
-                {
-                    "type": "text",
-                    "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc5",
-                    "sequenceNumber": sequenceNumber,
-                    "conversationSequenceNumber": 0,
-                    "contentType": "text/plain",
-                    "value": data.message,
-                    "displayName": "John Doe",
-                    "participantType": "WebUser"
-                }];
+            {
+                "type": "text",
+                "participantID": "94e8c3b0-aeee-40e1-ba5aa593c8047fc5",
+                "sequenceNumber": mock.sequenceNumber,
+                "conversationSequenceNumber": 0,
+                "contentType": "text/plain",
+                "value": data.message || "...",
+                "displayName": "John Doe",
+                "participantType": "WebUser"
+            }
+        ];
         console.warn("**** mocking send response ****", response);
-        return [200, response];
+        return [200, { chat: response }];
     });
-
-//test
+//test / test ko
 mock
     .onGet(/test/)
     .reply(200, commonResponse);
-//disco
+mock
+    .onGet(/fail/)
+    .reply(200, commonResponseFail);
+//disconnect
 mock
     .onPost(/chat\/disconnect/)
     .reply(200, commonResponse);
@@ -136,7 +116,8 @@ mock
 mock
     .onPost(/chat\/reconnect/)
     .reply(200, commonResponse);
-    
+
+
 //// MOCK REST API //
 
-export default mock 
+export default mock
