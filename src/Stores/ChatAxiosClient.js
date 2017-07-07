@@ -4,9 +4,9 @@ const debugMode = true; //verbose store output not for prod!!!
 
 ////LOCAL REST MPOCKS for dev
 // eslint-disable-next-line
-import mock from './ChatAxiosClient.Mock';
+//import mock from './ChatAxiosClient.Mock';
 
-axios.rootUri =  "https://chatapi-dev.n-allo.be/api/";
+axios.rootUri =  "https://chatapi-acc.n-allo.be/api/";
 //axios.rootUri =  "http://chatapi.n-allo.be/api/";//PROD
 //axios.rootUri =  "http://chatapi-dev.n-allo.be/api/";//DEV/ACC PUBLIC: FAILED 404
 //axios.rootUri =  "http://chat-acc.engie-electrabel.be/api/";//ACC PUBLIC
