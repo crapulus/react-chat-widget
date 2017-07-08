@@ -1,38 +1,37 @@
 import React, { Component } from 'react';
-import Header from './Header.jsx';
-import Messages from './Messages.jsx';
-import _ from 'lodash';
+import { observer } from 'mobx-react';
+import CardText from 'material-ui/Card';
+import { GridList } from 'material-ui/GridList';
 
-// Conversation
-export default class Conversation extends Component {
-		translate = (lang) => {
-			switch (lang) {
-				case "fr":
-					return " avec ";
-				case "nl":
-					return " met ";
-				default:
-				return " with ";
-			}
-		}
-		headerText = () => {
-			let txt = "Chat";
-			let pp = this.props.participants;
-			if (pp && pp.length > 0) {
-				txt+= this.translate(this.props.lang) + _.join(pp.map((p)=>{return p.name}), ", ");
-				
-			}
-			return txt;
-		}
-				
-		render() {
+import Message from './Message.jsx';
 
+@observer
+export default class Conversation extends Component {		
+	renderMessage = (message, idx) => {
 		return (
-			<div className='Conversation'>
-				<div className="container">
-					<Messages messages={this.props.messages} />
-				</div>
-			</div>
+			<Message
+				key={idx}
+				message={message.message}
+				sender={message.sender}
+				displayName={message.displayName}
+				timeStamp={message.timeStamp}
+				style={this.props.style.Message}
+			/>);
+	}	
+
+	render() {
+		let messages = this.props.messages.map(this.renderMessage);					
+		return (		
+			<CardText>
+				<GridList
+					style={this.props.style.MessageList}
+					cols={1}
+					cellHeight="auto"
+					padding={8}
+					id="messageslist">
+					{messages}
+				</GridList>
+			</CardText>
 		);
 	}
 }

@@ -1,0 +1,20 @@
+{
+    "fr": {
+        "placeHolder": "Votre question...",
+        "defaultUserName": "Moi",
+        "toolTip": "Démarrer une conversation",
+        "subHeader": ["Message", "Messages"]
+    },
+    "nl": {
+        "placeHolder": "Uw vraag...",
+        "defaultUserName": "Ik",
+        "toolTip": "Chat opstarten",
+        "subHeader":["Berichten", "Berichten"]     
+    },
+    "en": {
+        "placeHolder": "Your question...",
+        "defaultUserName": "Me",
+        "toolTip": "Start a conversation",
+        "subHeader":["Message", "Messages"]
+    }
+}

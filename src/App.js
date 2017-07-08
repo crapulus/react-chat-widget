@@ -1,26 +1,25 @@
 import React, { Component } from 'react';
 import {Provider} from 'mobx-react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-//import DevTools from 'mobx-react-devtools'; //dev-only
-import Widget from './Components/Widget.jsx';
+import DevTools from 'mobx-react-devtools'; //dev-only
+import Widget from './Containers/Widget.jsx';
 import ChatStore from './Stores/ChatStore';
+
+const chatStore = new ChatStore();
 
 injectTapEventPlugin();
 
 class App extends Component {
-  store = new ChatStore(this.props.config);
-  getLanguage = () => {
-   return (this.props.config.WebSiteInfo.Language || navigator.language || "en").trim().substring(0,2);
-  }
-  render() {
+
+  render() { 
     
     return ( 
       <div>
+       <Provider chatStore={chatStore}>      
+          <Widget />  
+       </Provider>         
        
-
-       <Provider chatStore={this.store}>      
-          <Widget config={this.props.config} lang={this.getLanguage()}/>  
-       </Provider>       
+       <DevTools/>
        
        </div>
     );
